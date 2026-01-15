@@ -19,6 +19,7 @@ with open(base_path+"users.csv") as users_data:
     
     for row in new_users:
     
-        current_grade=data.get_grade(row[3])
-        data.add_user(row[0],current_grade,row[2],row[1],row[4])
-        print(row)
+        current_grade=data.get_grade(row[5])
+        current_user=data.add_user(row[3],current_grade,row[2],row[1],row[4])
+        data.add_tag(row[0],current_user)
+        
