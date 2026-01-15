@@ -1,0 +1,24 @@
+import csv
+import os
+import csv
+from datastore import DataStore
+
+
+data=DataStore()
+
+
+
+
+base_path=os.path.dirname(os.path.realpath(__file__))+"/assets/tests/"
+
+
+with open(base_path+"users.csv") as users_data:
+    new_users=csv.reader(users_data,delimiter=";")
+    #print headers
+    print(next(new_users))
+    
+    for row in new_users:
+    
+        current_grade=data.get_grade(row[3])
+        data.add_user(row[0],current_grade,row[2],row[1],row[4])
+        print(row)

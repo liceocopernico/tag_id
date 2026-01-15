@@ -1,0 +1,30 @@
+[project]
+name = "tag-id"
+version = "0.1.0"
+description = ""
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "Flet developer", email = "you@example.com" }
+]
+dependencies = [
+  "aioesphomeapi>=36.0.1",
+  "flet>=0.80.1",
+  "peewee>=3.18.3",
+  "ping3>=5.1.5",
+  "pymysql>=1.1.2",
+]
+
+[dependency-groups]
+dev = [
+  "flet[all]>=0.80.1",
+]
+
+[tool.flet]
+org = "com.mycompany"
+product = "tag-id"
+company = "Flet"
+copyright = "Copyright (C) 2026 by Flet"
+
+[tool.flet.app]
+path = "src"
