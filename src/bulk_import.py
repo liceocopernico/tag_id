@@ -9,10 +9,10 @@ data=DataStore()
 
 
 
-base_path=os.path.dirname(os.path.realpath(__file__))+"/assets/tests/"
+base_path=os.path.dirname(os.path.realpath(__file__))+"/assets/init_data/"
 
 
-with open(base_path+"users.csv") as users_data:
+with open(base_path+"teachers.csv") as users_data:
     new_users=csv.reader(users_data,delimiter=";")
     #print headers
     print(next(new_users))

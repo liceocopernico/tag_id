@@ -29,7 +29,7 @@ class genConfig:
         self.DB_PWD=config['database']['db_pwd']
         self.DB_PORT=int(config['database']['db_port'])
         self.DB_HOST=config['database']['db_host']
-        
+        self.CLASSROOMGRID=(10,8)
         
         self.DEFAULT_READER=config['reader']['default_reader']
 

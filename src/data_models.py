@@ -4,21 +4,8 @@ import datetime
 class grade(Model):
     name=CharField(unique=True)
     session=DateTimeField(default=datetime.datetime.now)
-    
-class classroom(Model):
-    room_code=CharField(unique=True)
-    name=CharField()
-    seats=IntegerField(default=21)
-    
-
-class tagReader(Model):
-    name=CharField(unique=True)
-    ip_address=CharField()
-    last_seen=DateTimeField(default=datetime.datetime.now)
-    last_scan=DateTimeField(default=datetime.datetime.now)
-    location=ForeignKeyField(classroom,backref='tag_readers')
-    secret=CharField()
-
+   
+ 
 class user(Model):
     username=CharField(unique=True)
     role=CharField(default='user')
@@ -29,7 +16,45 @@ class user(Model):
     picture=CharField(default='test_student.png')
     name=CharField(default='test')
     surname=CharField(default='test')
+   
+class classroom(Model):
+    room_code=CharField(unique=True)
+    name=CharField()
+    seats=IntegerField(default=21)
+
+class gradeDistribution(Model):
+    grade=ForeignKeyField(grade,backref='distributions')
+    date=DateTimeField(default=datetime.datetime.now)
+    current=BooleanField(default=True)
+    distribution=CharField()
     
+class gradeClassroom(Model):
+        grade=ForeignKeyField(grade,backref='classrooms')
+        classroom=ForeignKeyField(classroom,backref='grades')
+        date=DateTimeField(default=datetime.datetime.now)
+        
+           
+class desk(Model):
+    classroom=ForeignKeyField(classroom,backref='desks')
+    used=BooleanField(default=True)
+    x=IntegerField()
+    y=IntegerField()   
+    
+class deskStudent(Model):
+    desk=ForeignKeyField(desk,backref='students')
+    student=ForeignKeyField(user,backref='desks')
+    date=DateTimeField(default=datetime.datetime.now)
+   
+   
+class tagReader(Model):
+    name=CharField(unique=True)
+    ip_address=CharField()
+    last_seen=DateTimeField(default=datetime.datetime.now)
+    last_scan=DateTimeField(default=datetime.datetime.now)
+    location=ForeignKeyField(classroom,backref='tag_readers')
+    secret=CharField()
+
+ 
 class tag(Model):
     tag_id=CharField(unique=True)
     user=ForeignKeyField(user,backref='tags')

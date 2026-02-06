@@ -1,28 +1,89 @@
 from peewee import SqliteDatabase,IntegrityError,DoesNotExist,MySQLDatabase
-from data_models import grade,user,classroom,tagReader,timeTable,tagScan,tag,roster,tagRoster
+from data_models import grade,user,classroom,tagReader,timeTable,tagScan,tag,roster,tagRoster,desk,deskStudent,gradeDistribution,gradeClassroom
 from configurations import genConfig 
-
+import random
+import json as j
 import datetime
 
 
 class DataStore:
     def __init__(self):
 
-        
+
         config=genConfig()
+        
         match config.DB_TYPE:
             case 'sqlite':
                 self.db=SqliteDatabase(config.DB_PATH)
             case 'mariadb':
                 self.db=MySQLDatabase(config.DB_NAME, user=config.DB_USER, password=config.DB_PWD,
                          host=config.DB_HOST, port=config.DB_PORT)
-        self.db.bind([grade,user,classroom,tagReader,timeTable,tagScan,tag,roster,tagRoster])
+        self.db.bind([grade,user,classroom,tagReader,timeTable,tagScan,tag,roster,tagRoster,desk,deskStudent,gradeDistribution,gradeClassroom])
         
+        
+    
     def init_db(self):
-        db = self.db.create_tables([grade,user,classroom,tagReader,timeTable,tagScan,tag,roster,tagRoster])
+        db = self.db.create_tables([grade,user,classroom,tagReader,timeTable,tagScan,tag,roster,tagRoster,desk,deskStudent,gradeDistribution,gradeClassroom])
         return db
+    
+    def add_table(self,table):
+        db=self.db.create_tables([table])
+        return db
+        
+    def add_grade_distribution(self,grade:grade,distribution:list):
+        json_distribution=j.dumps(distribution)
+        try:
+            new_grade_distribution=gradeDistribution.create(grade=grade,distribution=json_distribution)
+        except IntegrityError:
+            return False
+        return new_grade_distribution
+    
+    def get_current_distribution(self,grade:grade):
+        try:
+            current_distribution=gradeDistribution.get(gradeDistribution.grade==grade,gradeDistribution.current==True)
+        except DoesNotExist:
+            return [None,None]
+        return [j.loads(current_distribution.distribution),current_distribution]
+   
+    
+    def add_desk(self,classroom:classroom,x:int,y:int):
+        try:
+            new_desk=desk.create(classroom=classroom,x=x,y=y)
+        except IntegrityError:
+            return False
+        return new_desk
+
+    def remove_desk(self,classroom:classroom,x:int,y:int):
+        try:
+            qr=desk.delete().where(desk.classroom==classroom,desk.x==x,desk.y==y)
+            qr.execute()
+        except DoesNotExist:
+            print("Desk not found")
+            return False
+        return True
+    
+    def get_desk(self,classroom:classroom,x:int,y:int):
+        try:
+            data=(desk.select().where(desk.classroom==classroom,desk.x==x,desk.y==y))
+            if len(data)>0:
+                return data[0]
+            else: return None
+        except DoesNotExist:
+            return None
+        
+        
+    def get_desks(self,classroom:classroom):
+        return None
+    
+    def add_desk_student(self,desk:desk,student:user):
+        try:
+            new_desk_student=deskStudent.create(desk=desk,student=student)
+        except IntegrityError:
+            return False
+        return new_desk_student 
+    
             
-    def add_classroom(self,room_code,name,seats):
+    def add_classroom(self,room_code,name,seats=22):
         try:
             new_classroom=classroom.create(room_code=room_code,name=name,seats=seats)
         except IntegrityError:
@@ -30,9 +91,9 @@ class DataStore:
         return new_classroom
        
     
-    def get_classroom(self,room_code):  
+    def get_classroom(self,code):  
         try:
-            classroom_data=classroom.get(classroom.room_code==room_code)
+            classroom_data=classroom.get(classroom.room_code==code)
         except DoesNotExist:
             return None
         return classroom_data

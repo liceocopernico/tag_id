@@ -7,7 +7,7 @@ from ping3 import ping
 from datetime import datetime
 import flet as ft
 from tagmanagement import Tag,Roster
-
+import random
 
 
 
@@ -16,7 +16,7 @@ from tagmanagement import Tag,Roster
 @dataclass
 class TagReader:
     name: str
-    dataStore: DataStore = DataStore()
+    database: DataStore
     reader_data: tagReader = field(init=False)
     current_roster: Roster = field(init=False)
     last_tag: str=""
@@ -25,14 +25,15 @@ class TagReader:
     connected: bool=False
     test: str="test"
     logic: aioesphomeapi.ReconnectLogic |None = None
-    
+    rand_seed:int=random.randint(10,20)
+        
     def __post_init__(self):
-        self.reader_data=self.dataStore.get_tag_reader(self.name)
+        self.reader_data=self.database.get_tag_reader(self.name)
         self.current_roster=None
              
     def current_roster_update(self,code):
        
-        self.current_roster=Roster(code=code)
+        self.current_roster=Roster(code=code,database=self.database)
         
              
              
@@ -61,21 +62,19 @@ class TagReader:
         
            
         index= len(self.current_roster.tags) if self.current_roster else 0
-        
         future_tag=self.current_roster.get_tag(tag_id) if self.current_roster else None
-                
-        current_tag: Tag= future_tag if future_tag else Tag(tag_id=tag_id,ord=index)
+        current_tag: Tag= future_tag if future_tag else Tag(tag_id=tag_id,ord=index,database=self.database)
         
         
         
         if current_tag.registered:
-            new_tag_scan=self.dataStore.add_tag_scan(current_tag.data,self.reader_data)
+            new_tag_scan=self.database.add_tag_scan(current_tag.data,self.reader_data)
             if not self.current_roster:
-                self.current_roster=Roster()
-            new_tag_roster=self.dataStore.add_tag_roster(current_tag.data,self.current_roster.roster_data)      
+                self.current_roster=Roster(self.database)
+            new_tag_roster=self.database.add_tag_roster(current_tag.data,self.current_roster.roster_data)      
             if not new_tag_roster:
                 
-                self.dataStore.remove_tagscan_roster(current_tag.data,self.current_roster.roster_data)
+                self.database.remove_tagscan_roster(current_tag.data,self.current_roster.roster_data)
                 self.current_roster.remove_tag(current_tag)
             else:
                 self.current_roster.add_tag(current_tag)
@@ -98,12 +97,12 @@ class TagReader:
         
         async def on_disconnect(expected_disconnect: bool) -> None:
             print(expected_disconnect)
-            print("Disconnection!!!")
+            print("DISCONNECTION")
             self.connected=False
             pass
 
         async def on_connect() -> None:
-            print("Connection!!!")
+            print("CONNECTION")
             self.connected=True
             cli.subscribe_home_assistant_states_and_services(
             on_state=on_srv_stub,
@@ -113,7 +112,7 @@ class TagReader:
         )
             pass
         async def on_connect_error(test) -> None:
-            print("Connection errorr!!!!!")
+            print("CONNECTION ERROR")
             
             self.connected=False
             pass
@@ -132,7 +131,7 @@ class TagReader:
         
           
     async def is_online(self):
-        
+        print(f"reader rand seed {self.rand_seed}")
         while self.active:
         
             alive=ping(self.reader_data.ip_address,timeout=0.1)

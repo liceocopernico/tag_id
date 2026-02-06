@@ -13,6 +13,7 @@ dependencies = [
   "peewee>=3.18.3",
   "ping3>=5.1.5",
   "pymysql>=1.1.2",
+  "svg-py>=1.10.0",
 ]
 
 [dependency-groups]
