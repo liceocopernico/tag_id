@@ -1,6 +1,7 @@
 from peewee import *
 import datetime
 
+
 class grade(Model):
     name=CharField(unique=True)
     session=DateTimeField(default=datetime.datetime.now)
