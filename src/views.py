@@ -138,12 +138,16 @@ def ClassroomApp(classroom:Classroom):
         classroom.distributed_students
         
     async def save_file(e):
-        
-        filename=await ft.FilePicker().save_file(file_type=ft.FilePickerFileType.CUSTOM,
+        try:
+            filename=await ft.FilePicker().save_file(
+                                                 dialog_title="Save students map",
+                                                 file_type=ft.FilePickerFileType.CUSTOM,
                                                  allowed_extensions=["svg"],
                                                  file_name="students_map.svg"
                                                  ) 
-        classroom.save_map(filename)
+            classroom.save_map(filename)
+        except Exception as e:
+            print(e)
         
    
     return ft.Container(

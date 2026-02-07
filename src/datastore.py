@@ -1,5 +1,5 @@
 from peewee import SqliteDatabase,IntegrityError,DoesNotExist,MySQLDatabase
-from data_models import grade,user,classroom,tagReader,timeTable,tagScan,tag,roster,tagRoster,desk,deskStudent,gradeDistribution,gradeClassroom
+from data_models import *
 from configurations import genConfig 
 import random
 import json as j
@@ -11,19 +11,19 @@ class DataStore:
 
 
         config=genConfig()
-        
+        self.parameters=config
         match config.DB_TYPE:
             case 'sqlite':
                 self.db=SqliteDatabase(config.DB_PATH)
             case 'mariadb':
                 self.db=MySQLDatabase(config.DB_NAME, user=config.DB_USER, password=config.DB_PWD,
-                         host=config.DB_HOST, port=config.DB_PORT)
-        self.db.bind([grade,user,classroom,tagReader,timeTable,tagScan,tag,roster,tagRoster,desk,deskStudent,gradeDistribution,gradeClassroom])
+                         host=config.DB_HOST, port=config.DB_PORT,charset='utf8')
+        self.db.bind(self.parameters.DB_TABLES)
         
         
     
     def init_db(self):
-        db = self.db.create_tables([grade,user,classroom,tagReader,timeTable,tagScan,tag,roster,tagRoster,desk,deskStudent,gradeDistribution,gradeClassroom])
+        db = self.db.create_tables(self.parameters.DB_TABLES)
         return db
     
     def add_table(self,table):

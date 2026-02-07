@@ -1,6 +1,7 @@
 import os
 import configparser
 from enum import Enum
+from data_models import *
 
 class TagColor(Enum):
     BACKGROUND = "#F2F2F2"
@@ -30,6 +31,6 @@ class genConfig:
         self.DB_PORT=int(config['database']['db_port'])
         self.DB_HOST=config['database']['db_host']
         self.CLASSROOMGRID=(10,8)
-        
+        self.DB_TABLES=[grade,user,classroom,tagReader,timeTable,tagScan,tag,roster,tagRoster,desk,deskStudent,gradeDistribution,gradeClassroom]
         self.DEFAULT_READER=config['reader']['default_reader']
 
